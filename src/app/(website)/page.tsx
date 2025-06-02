@@ -60,11 +60,11 @@ export default function HomePage() {
 
       {result && <p>{result}</p>}
 
-      <div>
+      {/* <div>
         <Button disabled={isLoading} onClick={handleUpdateEmbeddings}>
           Update embeddings
         </Button>
-      </div>
+      </div> */}
     </main>
   );
 }
