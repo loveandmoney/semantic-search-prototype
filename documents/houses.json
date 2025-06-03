@@ -5,7 +5,7 @@
       "name": "Azure Oasis",
       "description": "A contemporary home with an open-plan living space and serene garden views.",
       "price": 450000,
-      "imageUrl": "https://source.unsplash.com/400x300/?house,modern",
+      "imageUrl": "https://images.unsplash.com/photo-1622015663084-307d19eabbbf?w=600",
       "tags": ["modern", "open-plan", "garden"]
     },
     {
@@ -13,7 +13,7 @@
       "name": "Willow Creek",
       "description": "A cozy cottage nestled in lush surroundings with warm interiors.",
       "price": 380000,
-      "imageUrl": "https://source.unsplash.com/400x300/?cottage,cozy",
+      "imageUrl": "https://images.unsplash.com/photo-1713127406882-cf99ae338789",
       "tags": ["cottage", "cozy", "nature"]
     },
     {
@@ -21,7 +21,7 @@
       "name": "Urban Luxe",
       "description": "A sleek townhouse in the heart of the city with luxurious amenities.",
       "price": 620000,
-      "imageUrl": "https://source.unsplash.com/400x300/?townhouse,urban",
+      "imageUrl": "https://images.unsplash.com/photo-1728524245267-cee4d673d8ed",
       "tags": ["city", "luxury", "modern"]
     },
     {
@@ -29,7 +29,7 @@
       "name": "Coastal Retreat",
       "description": "A beachside haven with spacious balconies and ocean views.",
       "price": 750000,
-      "imageUrl": "https://source.unsplash.com/400x300/?beach,house",
+      "imageUrl": "https://images.unsplash.com/photo-1596075610150-2bc2d865d53b",
       "tags": ["coastal", "ocean", "beach"]
     },
     {
@@ -37,7 +37,7 @@
       "name": "Meadow Brook",
       "description": "A family-friendly home with large yard space and natural lighting.",
       "price": 500000,
-      "imageUrl": "https://source.unsplash.com/400x300/?house,family",
+      "imageUrl": "https://plus.unsplash.com/premium_photo-1694475477920-8064c7783ed9",
       "tags": ["family", "yard", "natural-light"]
     },
     {
@@ -45,7 +45,7 @@
       "name": "Skyline Residence",
       "description": "An upscale penthouse with panoramic city views and chic finishes.",
       "price": 980000,
-      "imageUrl": "https://source.unsplash.com/400x300/?penthouse,city",
+      "imageUrl": "https://images.unsplash.com/photo-1702411200201-3061d0eea802",
       "tags": ["penthouse", "luxury", "city-views"]
     },
     {
@@ -53,7 +53,7 @@
       "name": "Rustic Manor",
       "description": "A traditional home with rustic charm and exposed beams throughout.",
       "price": 420000,
-      "imageUrl": "https://source.unsplash.com/400x300/?rustic,house",
+      "imageUrl": "https://images.unsplash.com/photo-1664369058082-ee8e36028106",
       "tags": ["rustic", "traditional", "wood"]
     },
     {
@@ -61,7 +61,7 @@
       "name": "Garden Haven",
       "description": "A green escape with mature gardens and eco-friendly features.",
       "price": 470000,
-      "imageUrl": "https://source.unsplash.com/400x300/?garden,house",
+      "imageUrl": "https://images.unsplash.com/photo-1586175554766-77513ac248d0",
       "tags": ["garden", "eco", "green"]
     },
     {
@@ -69,7 +69,7 @@
       "name": "Mountain View",
       "description": "A scenic home with stunning mountain views and a cozy fireplace.",
       "price": 550000,
-      "imageUrl": "https://source.unsplash.com/400x300/?mountain,house",
+      "imageUrl": "https://images.unsplash.com/photo-1623451680386-0bb3ab60a8ff",
       "tags": ["mountain", "view", "fireplace"]
     },
     {
@@ -77,7 +77,7 @@
       "name": "Lakeside Lodge",
       "description": "A charming lodge with direct lake access and serene surroundings.",
       "price": 600000,
-      "imageUrl": "https://source.unsplash.com/400x300/?lake,house",
+      "imageUrl": "https://images.unsplash.com/photo-1659221483779-42fd649018f7",
       "tags": ["lake", "serene", "lodge"]
     },
     {
@@ -85,7 +85,7 @@
       "name": "Sunset Villa",
       "description": "A villa that captures sunset views from every room and balcony.",
       "price": 850000,
-      "imageUrl": "https://source.unsplash.com/400x300/?sunset,house",
+      "imageUrl": "https://images.unsplash.com/photo-1674758979141-4e3521ba7321",
       "tags": ["villa", "sunset", "balcony"]
     },
     {
@@ -93,7 +93,7 @@
       "name": "Country Estate",
       "description": "An expansive estate surrounded by rolling hills and wide open spaces.",
       "price": 900000,
-      "imageUrl": "https://source.unsplash.com/400x300/?estate,country",
+      "imageUrl": "https://images.unsplash.com/photo-1573812188649-de34d2324878",
       "tags": ["estate", "country", "spacious"]
     },
     {
@@ -101,7 +101,7 @@
       "name": "Urban Studio",
       "description": "A compact yet elegant studio in the vibrant downtown area.",
       "price": 310000,
-      "imageUrl": "https://source.unsplash.com/400x300/?studio,apartment",
+      "imageUrl": "https://images.unsplash.com/photo-1610123172763-1f587473048f",
       "tags": ["studio", "downtown", "compact"]
     },
     {
@@ -109,7 +109,7 @@
       "name": "Maple Grove",
       "description": "A charming bungalow with maple trees lining the peaceful street.",
       "price": 460000,
-      "imageUrl": "https://source.unsplash.com/400x300/?bungalow,trees",
+      "imageUrl": "https://images.unsplash.com/photo-1698001325182-54bab4d657f6",
       "tags": ["bungalow", "charming", "maple"]
     },
     {
@@ -117,7 +117,7 @@
       "name": "Hillside Haven",
       "description": "A multi-level home built into the hillside with terraced gardens.",
       "price": 580000,
-      "imageUrl": "https://source.unsplash.com/400x300/?hillside,house",
+      "imageUrl": "https://images.unsplash.com/photo-1580751419939-4e32b06b2a7c",
       "tags": ["hillside", "multi-level", "garden"]
     },
     {
@@ -125,7 +125,7 @@
       "name": "Forest Hideaway",
       "description": "A secluded cabin surrounded by old-growth forest and wildlife.",
       "price": 495000,
-      "imageUrl": "https://source.unsplash.com/400x300/?forest,cabin",
+      "imageUrl": "https://images.unsplash.com/photo-1633830902223-727413dfad8f",
       "tags": ["forest", "secluded", "wildlife"]
     },
     {
@@ -133,7 +133,7 @@
       "name": "Desert Dune",
       "description": "A modern adobe-style home blending seamlessly with the desert landscape.",
       "price": 430000,
-      "imageUrl": "https://source.unsplash.com/400x300/?desert,house",
+      "imageUrl": "https://images.unsplash.com/photo-1544984243-ec57ea16fe25",
       "tags": ["desert", "adobe", "modern"]
     },
     {
@@ -141,7 +141,7 @@
       "name": "Orchard House",
       "description": "A country home nestled in a fruit orchard with rustic details.",
       "price": 510000,
-      "imageUrl": "https://source.unsplash.com/400x300/?orchard,house",
+      "imageUrl": "https://images.unsplash.com/photo-1665312683280-b42f736648ab",
       "tags": ["orchard", "country", "rustic"]
     },
     {
@@ -149,7 +149,7 @@
       "name": "Riverside Cottage",
       "description": "A quaint riverside home with fishing and kayaking at your doorstep.",
       "price": 470000,
-      "imageUrl": "https://source.unsplash.com/400x300/?river,house",
+      "imageUrl": "https://images.unsplash.com/photo-1577651741085-1750b109671c",
       "tags": ["riverside", "cottage", "kayaking"]
     },
     {
@@ -157,7 +157,7 @@
       "name": "Alpine Chalet",
       "description": "A luxurious alpine retreat perfect for skiing and cozy nights by the fire.",
       "price": 990000,
-      "imageUrl": "https://source.unsplash.com/400x300/?alpine,house",
+      "imageUrl": "https://images.unsplash.com/photo-1747137985276-60942f53f4c6",
       "tags": ["alpine", "ski", "luxury"]
     }
   ]
