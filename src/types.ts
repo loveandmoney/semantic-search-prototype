@@ -24,6 +24,6 @@ export interface IPineconeVector {
 export interface IPineconeVectorResponse {
   id: string;
   values: number[];
-  metadata: IDoc;
+  metadata: IHouse;
   score: number;
 }
