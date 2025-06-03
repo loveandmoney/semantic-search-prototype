@@ -22,7 +22,7 @@ export const UpdateEmbeddingsButton = () => {
 
   return (
     <Button disabled={isLoading} onClick={handleUpdateEmbeddings}>
-      Update embeddings
+      Update Index
     </Button>
   );
 };
