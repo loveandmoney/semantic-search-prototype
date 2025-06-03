@@ -1,26 +1,23 @@
 'use client';
 
+import { HouseTile } from '@/components/HouseTile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { apiService } from '@/lib/apiService';
+import { IPineconeVectorResponse } from '@/types';
 import { useState } from 'react';
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
-  const [result, setResult] = useState('');
+  const [searchedQuery, setSearchedQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [relevantHouses, setRelevantHouses] = useState<
+    IPineconeVectorResponse[]
+  >([]);
 
-  const handleUpdateEmbeddings = async () => {
-    setIsLoading(true);
-
-    try {
-      const data = await apiService.updateEmbeddings();
-      console.log(data);
-    } catch (error) {
-      console.error('Error creating index and embeddings:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleQuerySubmit();
   };
 
   const handleQuerySubmit = async () => {
@@ -28,43 +25,73 @@ export default function HomePage() {
       return;
     }
 
+    setRelevantHouses([]);
     setIsLoading(true);
-    setResult('');
+    setSearchedQuery(query);
 
     try {
-      const json = await apiService.query({ query });
-      setResult(json.data);
+      const { relevantHouses } = await apiService.vectorSearchRelevantHouses({
+        query,
+      });
+      setRelevantHouses(relevantHouses);
     } catch (error) {
       console.error('Error sending query:', error);
     } finally {
       setIsLoading(false);
+      setQuery('');
     }
   };
 
-  return (
-    <main className="space-y-4">
-      <h1>Semantic Search</h1>
-      <Input
-        placeholder="Enter query"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+  const topHouse = relevantHouses[0];
+  const otherHouses = relevantHouses.slice(1);
 
-      <div>
+  return (
+    <main className="space-y-6 max-w-[600px] m-auto">
+      <h1 className="text-2xl font-bold">Semantic Search</h1>
+
+      <form onSubmit={handleSubmit} className="flex gap-2">
+        <Input
+          placeholder="Describe your dream home"
+          value={query}
+          disabled={isLoading}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+
         <Button disabled={isLoading} onClick={handleQuerySubmit}>
           Ask AI
         </Button>
-      </div>
+      </form>
 
-      {isLoading && <p>Loading...</p>}
+      {!isLoading && searchedQuery && topHouse && (
+        <div className="space-y-2">
+          <h2 className="font-bold">
+            Picked for you based on your search &quot;{searchedQuery}&quot;
+          </h2>
+          <HouseTile
+            image={topHouse.metadata.imageUrl}
+            matchScore={topHouse.score}
+            name={topHouse.metadata.name}
+          />
+        </div>
+      )}
 
-      {result && <p>{result}</p>}
+      {otherHouses?.[0] && (
+        <div className="space-y-2">
+          <h2 className="font-bold">You might also like</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {otherHouses.map((house) => (
+              <HouseTile
+                key={house.id}
+                image={house.metadata.imageUrl}
+                matchScore={house.score}
+                name={house.metadata.name}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* <div>
-        <Button disabled={isLoading} onClick={handleUpdateEmbeddings}>
-          Update embeddings
-        </Button>
-      </div> */}
+      {isLoading && <div className="text-center text-gray-500">Loading...</div>}
     </main>
   );
 }

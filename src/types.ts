@@ -18,5 +18,12 @@ export interface IDoc {
 export interface IPineconeVector {
   id: string;
   values: number[];
-  metadata?: Record<string, string | number | boolean | string[]>;
+  metadata: Record<string, string | number | boolean | string[]>;
+}
+
+export interface IPineconeVectorResponse {
+  id: string;
+  values: number[];
+  metadata: IDoc;
+  score: number;
 }

@@ -1,7 +1,10 @@
+import { IPineconeVectorResponse } from '@/types';
+
 const apiEndpoint = `${process.env.NEXT_PUBLIC_SITE_URL}/api`;
 
 const endpoint = {
   query: `${apiEndpoint}/query`,
+  vectorSearchRelevantHouses: `${apiEndpoint}/vector-search-relevant-houses`,
   updateEmbeddings: `${apiEndpoint}/update-embeddings`,
 };
 
@@ -18,17 +21,25 @@ export const apiService = {
     const json = await response.json();
     return json;
   },
-  async query({ query }: { query: string }) {
+  async vectorSearchRelevantHouses({
+    query,
+    results = 3,
+  }: {
+    query: string;
+    results?: number;
+  }) {
     if (!query) {
       throw new Error('Query cannot be empty');
     }
 
-    const response = await fetch(endpoint.query, {
+    const response = await fetch(endpoint.vectorSearchRelevantHouses, {
       method: 'POST',
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query, results }),
     });
 
-    const json = await response.json();
+    const json = (await response.json()) as {
+      relevantHouses: IPineconeVectorResponse[];
+    };
     return json;
   },
 };

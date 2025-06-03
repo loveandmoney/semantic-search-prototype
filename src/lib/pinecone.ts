@@ -1,15 +1,12 @@
-import { OpenAI, OpenAIEmbeddings } from '@langchain/openai';
+import { OpenAIEmbeddings } from '@langchain/openai';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { loadQAStuffChain } from 'langchain/chains';
-import { Document } from 'langchain/document';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { IDoc, IPineconeVector } from '@/types';
 
 export const INDEX_NAME = 'test-houses';
-const NAMESPACE = 'default';
-const EMBEDDING_MODEL = 'text-embedding-3-small';
-const TOP_K = 10;
-const MAX_TOKENS = 100;
+export const EMBEDDING_MODEL = 'text-embedding-3-small';
+export const NAMESPACE = 'default';
+export const MAX_TOKENS = 100;
 
 export const verifyPineconeIndexExists = async (
   client: Pinecone,
@@ -76,6 +73,7 @@ export const updatePinecodeIndex = async (
           pageContent: chunk.pageContent,
         },
       };
+
       batch.push(vector);
 
       if (batch.length === BATCH_SIZE || i === chunks.length - 1) {
@@ -88,50 +86,40 @@ export const updatePinecodeIndex = async (
   }
 };
 
-export const queryPineconeVectorStoreAndQueryLLM = async (
-  client: Pinecone,
-  indexName: string,
-  query: string
-) => {
-  console.log('Querying Pinecone vector store...');
+// Use query to find relevant houses
+// export const llmConversationalSearch = async (
+//   query: string,
+//   conversation: IConversationMessage[],
+//   concatenatedHouseOptions: string
+// ) => {
+//   const mappedConversation = conversation.map((msg) => {
+//     if (msg.role === 'user') return new HumanMessage(msg.content);
+//     if (msg.role === 'assistant') return new AIMessage(msg.content);
+//     return new SystemMessage(msg.content);
+//   });
 
-  const index = client.Index(indexName);
-  console.log(`Index retrieved: ${indexName}`);
+//   const systemInstruction = new SystemMessage(
+//     `
+//       You are a helpful real estate assistant.
+//       From the provided property options, recommend the single best house that matches the user's query.
+//       Respond in 1-2 sentences only.
+//       Don't make stuff up, for example if they say they want wooden floors, only mention that the matching house has wooden floors if it actually is noted in the tags/options.
+//     `
+//   );
 
-  const queryEmbedding = await new OpenAIEmbeddings({
-    model: EMBEDDING_MODEL,
-  }).embedQuery(query);
+//   const chatPrompt = ChatPromptTemplate.fromMessages([
+//     systemInstruction,
+//     ...mappedConversation,
+//     new HumanMessage(
+//       `Here are some property options relevant to the query:\n${concatenatedHouseOptions}`
+//     ),
+//     new HumanMessage(query),
+//   ]);
 
-  const queryResponse = await index.namespace(NAMESPACE).query({
-    topK: TOP_K,
-    vector: queryEmbedding,
-    includeMetadata: true,
-    includeValues: true,
-  });
+//   const llm = new OpenAI({
+//     maxTokens: MAX_TOKENS,
+//   });
 
-  if (queryResponse.matches.length === 0) {
-    console.log('No matches found.');
-    return [];
-  }
-
-  console.log(`Found ${queryResponse.matches.length} matches.`);
-
-  const llm = new OpenAI({
-    maxTokens: MAX_TOKENS,
-  });
-  const chain = loadQAStuffChain(llm);
-  const concatenatedPageContent = queryResponse.matches
-    .map((match) => match.metadata?.pageContent || '')
-    .join(' ');
-
-  const result = await chain.invoke({
-    input_documents: [
-      new Document({
-        pageContent: concatenatedPageContent,
-      }),
-    ],
-    question: `You are a helpful real-estate assistant. Be concise. Answer the user's query: ${query}`,
-  });
-
-  return result.text;
-};
+//   const result = await chatPrompt.pipe(llm).invoke({});
+//   return result;
+// };
