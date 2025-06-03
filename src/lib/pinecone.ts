@@ -68,9 +68,8 @@ export const updatePinecodeIndex = async (
         id: `${doc.metadata.id}_${i}`,
         values: embeddingsArray[i],
         metadata: {
-          id: doc.metadata.id,
-          imageUrl: doc.metadata.imageUrl,
           pageContent: chunk.pageContent,
+          ...doc.metadata,
         },
       };
 

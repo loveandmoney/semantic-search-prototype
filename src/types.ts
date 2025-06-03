@@ -9,10 +9,7 @@ export interface IHouse {
 
 export interface IDoc {
   pageContent: string;
-  metadata: {
-    id: string;
-    imageUrl: string;
-  };
+  metadata: IHouse;
 }
 
 export interface IPineconeVector {

@@ -25,10 +25,7 @@ export const POST = async () => {
 
     return {
       pageContent: pageContent.trim(),
-      metadata: {
-        id: house.id,
-        imageUrl: house.imageUrl,
-      },
+      metadata: house,
     };
   });
 

@@ -67,11 +67,7 @@ export default function HomePage() {
           <h2 className="font-bold">
             Picked for you based on your search &quot;{searchedQuery}&quot;
           </h2>
-          <HouseTile
-            image={topHouse.metadata.imageUrl}
-            matchScore={topHouse.score}
-            name={topHouse.metadata.name}
-          />
+          <HouseTile house={topHouse.metadata} matchScore={topHouse.score} />
         </div>
       )}
 
@@ -82,9 +78,8 @@ export default function HomePage() {
             {otherHouses.map((house) => (
               <HouseTile
                 key={house.id}
-                image={house.metadata.imageUrl}
+                house={house.metadata}
                 matchScore={house.score}
-                name={house.metadata.name}
               />
             ))}
           </div>
