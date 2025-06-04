@@ -1,5 +1,4 @@
 import { IHouse } from '@/types';
-import Image from 'next/image';
 
 export const HouseTile = ({
   house,
@@ -16,11 +15,10 @@ export const HouseTile = ({
       <p>Match score: {matchScore}</p>
 
       <div className="relative aspect-[3/2] rounded overflow-hidden">
-        <Image
-          alt={name}
+        <img
           src={`${imageUrl}?q=80&w=500`}
-          fill
-          className="object-cover"
+          alt=""
+          className="absolute top-0 left-0 w-full h-full object-cover"
         />
       </div>
 

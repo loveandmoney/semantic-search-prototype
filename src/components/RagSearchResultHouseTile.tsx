@@ -1,19 +1,13 @@
 import { IHouse } from '@/types';
-import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import clsx from 'clsx';
 
 export const RagSearchResultHouseTile = ({
   house,
   matchScore,
-  handleClickAskQuestion,
-  askingAbout,
 }: {
   house: IHouse;
   matchScore?: number;
-  handleClickAskQuestion: (house: IHouse) => void;
-  askingAbout: IHouse | null;
 }) => {
   const { imageUrl, name } = house;
 
@@ -24,28 +18,16 @@ export const RagSearchResultHouseTile = ({
       {matchScore && <p>Score: {matchScore.toFixed(2)}</p>}
 
       <div className="relative aspect-[3/2] rounded overflow-hidden">
-        <Image
-          alt={name}
+        <img
           src={`${imageUrl}?q=80&w=500`}
-          fill
-          className="object-cover"
+          alt=""
+          className="absolute top-0 left-0 w-full h-full object-cover"
         />
       </div>
 
       <Link href="/info" className="block">
         <Button className="w-full">View Page</Button>
       </Link>
-
-      <Button
-        onClick={() => handleClickAskQuestion(house)}
-        variant="outline"
-        className={clsx(
-          'w-full',
-          askingAbout?.id === house.id && 'bg-green-300 hover:bg-green-400'
-        )}
-      >
-        Ask Question
-      </Button>
     </div>
   );
 };
