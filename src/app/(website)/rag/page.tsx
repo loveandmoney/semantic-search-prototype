@@ -4,7 +4,11 @@ import { RagSearchResultHouseTile } from '@/components/RagSearchResultHouseTile'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { apiService } from '@/lib/apiService';
-import { IChatMessage, IPineconeVectorResponse } from '@/types';
+import {
+  IPineconeVectorResponse,
+  IRagConversationMessage,
+  TRagConversationItem,
+} from '@/types';
 import { useRef, useState } from 'react';
 
 const systemPrompt = `
@@ -16,16 +20,14 @@ Use plain text formatting, no markdown or code blocks.
 
 export default function RagSearchPage() {
   const [query, setQuery] = useState('');
-  const [conversation, setConversation] = useState<IChatMessage[]>([
-    { content: systemPrompt, role: 'system' },
+  const [conversation, setConversation] = useState<TRagConversationItem[]>([
+    { _type: 'message', content: systemPrompt, role: 'system' },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState('');
-  const [vectorResults, setVectorResults] = useState<IPineconeVectorResponse[]>(
-    []
-  );
 
   const responseRef = useRef('');
+  const vectorMatchesRef = useRef<IPineconeVectorResponse[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +43,8 @@ export default function RagSearchPage() {
     setIsLoading(false);
     setConversation((prev) => [
       ...prev,
-      { content: responseRef.current, role: 'assistant' },
+      { _type: 'message', content: responseRef.current, role: 'assistant' },
+      { _type: 'vector_items', items: vectorMatchesRef.current },
     ]);
     setResponse('');
   };
@@ -51,12 +54,13 @@ export default function RagSearchPage() {
       return;
     }
 
-    const userQueryMessage: IChatMessage = {
+    const userQueryMessage: IRagConversationMessage = {
       content: query,
       role: 'user',
+      _type: 'message',
     };
 
-    const conversationWithNewQuery: IChatMessage[] = [
+    const conversationWithNewQuery: TRagConversationItem[] = [
       ...conversation,
       userQueryMessage,
     ];
@@ -64,7 +68,6 @@ export default function RagSearchPage() {
     responseRef.current = '';
 
     setIsLoading(true);
-    setVectorResults([]);
     setQuery('');
     setConversation(conversationWithNewQuery);
 
@@ -72,13 +75,14 @@ export default function RagSearchPage() {
       const { topMatches } = await apiService.vectorSearch({
         query,
       });
-      setVectorResults(topMatches);
+      vectorMatchesRef.current = topMatches;
 
       const matchesFormattedForLLM = topMatches
         .map((match) => `Score: ${match.score}\n${match.metadata.pageContent}`)
         .join('\n\n');
 
-      const contextSystemMessage: IChatMessage = {
+      const contextSystemMessage: IRagConversationMessage = {
+        _type: 'message',
         content: `
           Here is some relevant context to help answer the user's question:\n\n
           ${matchesFormattedForLLM}
@@ -86,11 +90,11 @@ export default function RagSearchPage() {
         role: 'system',
       };
 
-      const llmConversation: IChatMessage[] = [
+      const llmConversation: IRagConversationMessage[] = [
         ...conversationWithNewQuery.slice(0, -1),
         contextSystemMessage,
         userQueryMessage,
-      ];
+      ].filter((item) => item._type !== 'vector_items');
 
       apiService.openAiStream({
         onContent: onStreamContent,
@@ -107,41 +111,41 @@ export default function RagSearchPage() {
       <h1 className="text-2xl font-bold">RAG Search</h1>
 
       <div className="space-y-4">
-        {conversation.map((message, i) => (
+        {conversation.map((item, i) => (
           <div key={i}>
-            {message.role === 'user' && (
+            {item._type === 'message' && item.role === 'user' && (
               <div className="flex justify-end">
                 <p className="bg-black/10 px-2 py-1 rounded inline-block max-w-[75%]">
-                  {message.content}
+                  {item.content}
                 </p>
               </div>
             )}
 
-            {message.role === 'assistant' && (
-              <p className="inline-block max-w-[75%]">{message.content}</p>
+            {item._type === 'message' && item.role === 'assistant' && (
+              <p className="inline-block max-w-[75%]">{item.content}</p>
+            )}
+
+            {item._type === 'vector_items' && (
+              <div className="grid grid-cols-3 gap-4">
+                {item.items.map((house, i) => (
+                  <div
+                    key={house.id}
+                    className="animate-scale-in opacity-0"
+                    style={{ animationDelay: `${i * 100}ms` }}
+                  >
+                    <RagSearchResultHouseTile
+                      matchScore={house.score}
+                      house={house.metadata}
+                    />
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         ))}
 
         {response && <p className="inline-block max-w-[75%]">{response}</p>}
       </div>
-
-      {vectorResults?.[0] && !isLoading && (
-        <div className="grid grid-cols-3 gap-4">
-          {vectorResults.map((house, i) => (
-            <div
-              key={house.id}
-              className="animate-scale-in opacity-0"
-              style={{ animationDelay: `${i * 100}ms` }}
-            >
-              <RagSearchResultHouseTile
-                matchScore={house.score}
-                house={house.metadata}
-              />
-            </div>
-          ))}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input

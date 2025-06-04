@@ -34,6 +34,19 @@ export interface IChatMessage {
   role: 'user' | 'assistant' | 'system';
 }
 
+export interface IRagConversationMessage extends IChatMessage {
+  _type: 'message';
+}
+
+export interface IRagConversationVectorItems {
+  _type: 'vector_items';
+  items: IPineconeVectorResponse[];
+}
+
+export type TRagConversationItem =
+  | IRagConversationMessage
+  | IRagConversationVectorItems;
+
 export interface IStreamInitiator {
   conversation: IChatMessage[];
   onContent: (chunk: string) => void;
