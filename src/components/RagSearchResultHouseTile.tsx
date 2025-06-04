@@ -2,13 +2,18 @@ import { IHouse } from '@/types';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import clsx from 'clsx';
 
 export const RagSearchResultHouseTile = ({
   house,
   matchScore,
+  handleClickAskQuestion,
+  askingAbout,
 }: {
   house: IHouse;
   matchScore?: number;
+  handleClickAskQuestion: (house: IHouse) => void;
+  askingAbout: IHouse | null;
 }) => {
   const { imageUrl, name } = house;
 
@@ -31,7 +36,14 @@ export const RagSearchResultHouseTile = ({
         <Button className="w-full">View Page</Button>
       </Link>
 
-      <Button variant="outline" className="w-full">
+      <Button
+        onClick={() => handleClickAskQuestion(house)}
+        variant="outline"
+        className={clsx(
+          'w-full',
+          askingAbout?.id === house.id && 'bg-green-300 hover:bg-green-400'
+        )}
+      >
         Ask Question
       </Button>
     </div>
