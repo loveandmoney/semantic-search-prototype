@@ -9,17 +9,9 @@ export const POST = async (req: NextRequest) => {
     query: string;
     results: number;
   };
-  const client = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY || '',
-  });
 
   try {
-    const relevantHouses = await vectorSearchRelevantHouses(
-      client,
-      INDEX_NAME,
-      query,
-      results
-    );
+    const relevantHouses = await vectorSearch(query, results);
 
     return NextResponse.json({ relevantHouses });
   } catch (error) {
@@ -31,13 +23,15 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-const vectorSearchRelevantHouses = async (
-  client: Pinecone,
-  indexName: string,
+const vectorSearch = async (
   query: string,
   results: number
 ): Promise<IPineconeVectorResponse[]> => {
-  const index = client.Index(indexName);
+  const client = new Pinecone({
+    apiKey: process.env.PINECONE_API_KEY || '',
+  });
+
+  const index = client.Index(INDEX_NAME);
 
   const queryEmbedding = await new OpenAIEmbeddings({
     model: EMBEDDING_MODEL,

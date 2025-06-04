@@ -1,11 +1,12 @@
-import { IPineconeVectorResponse } from '@/types';
+import { IPineconeVectorResponse, IStreamInitiator } from '@/types';
+import { handleStreamResponse } from './streamHandler';
 
 const apiEndpoint = `${process.env.NEXT_PUBLIC_SITE_URL}/api`;
 
 const endpoint = {
-  query: `${apiEndpoint}/query`,
-  vectorSearchRelevantHouses: `${apiEndpoint}/vector-search-relevant-houses`,
+  vectorSearch: `${apiEndpoint}/vector-search`,
   updateEmbeddings: `${apiEndpoint}/update-embeddings`,
+  openAiStream: `${apiEndpoint}/openai-stream`,
 };
 
 export const apiService = {
@@ -21,7 +22,7 @@ export const apiService = {
     const json = await response.json();
     return json;
   },
-  async vectorSearchRelevantHouses({
+  async vectorSearch({
     query,
     results = 3,
   }: {
@@ -32,14 +33,27 @@ export const apiService = {
       throw new Error('Query cannot be empty');
     }
 
-    const response = await fetch(endpoint.vectorSearchRelevantHouses, {
+    const response = await fetch(endpoint.vectorSearch, {
       method: 'POST',
       body: JSON.stringify({ query, results }),
     });
 
     const json = (await response.json()) as {
-      relevantHouses: IPineconeVectorResponse[];
+      results: IPineconeVectorResponse[];
     };
     return json;
+  },
+  async openAiStream({
+    onContent,
+    onComplete,
+    conversation,
+  }: IStreamInitiator) {
+    const response = await fetch(endpoint.openAiStream, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversation }),
+    });
+
+    await handleStreamResponse({ response, onContent, onComplete });
   },
 };

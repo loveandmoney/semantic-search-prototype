@@ -24,3 +24,14 @@ export interface IPineconeVectorResponse {
   metadata: IHouse;
   score: number;
 }
+
+export interface IChatMessage {
+  content: string;
+  role: 'user' | 'assistant' | 'system';
+}
+
+export interface IStreamInitiator {
+  conversation: IChatMessage[];
+  onContent: (chunk: string) => void;
+  onComplete?: () => void;
+}
