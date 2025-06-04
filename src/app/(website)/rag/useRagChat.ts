@@ -1,9 +1,9 @@
 import { apiService } from '@/lib/apiService';
 import {
   IChatMessage,
-  IHouse,
-  IPineconeVectorResponse,
+  IHouseWithPageContent,
   IRagConversationMessage,
+  IRagVectorItem,
   TRagConversationItem,
 } from '@/types';
 import { useEffect, useRef, useState } from 'react';
@@ -24,10 +24,11 @@ Use plain text formatting, no markdown or code blocks.
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState('');
-  const [askingAbout, setAskingAbout] = useState<IHouse | null>(null);
+  const [followUpTarget, setFollowUpTarget] =
+    useState<IHouseWithPageContent | null>(null);
 
   const responseRef = useRef('');
-  const vectorMatchesRef = useRef<IPineconeVectorResponse[]>([]);
+  const vectorMatchesRef = useRef<IRagVectorItem[]>([]);
 
   const parseLLMConversation = (
     items: TRagConversationItem[]
@@ -43,14 +44,6 @@ Use plain text formatting, no markdown or code blocks.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleQuerySubmit();
-  };
-
-  const handleClickAskQuestion = (house: IHouse) => {
-    if (askingAbout?.id === house.id) {
-      setAskingAbout(null);
-    } else {
-      setAskingAbout(house);
-    }
   };
 
   const onStreamContent = (chunk: string) => {
@@ -85,7 +78,16 @@ Use plain text formatting, no markdown or code blocks.
       const { topMatches } = await apiService.vectorSearch({
         query,
       });
-      vectorMatchesRef.current = topMatches;
+      vectorMatchesRef.current = topMatches.map((match) => ({
+        id: match.id,
+        score: match.score,
+        metadata: match.metadata,
+      }));
+
+      const topRecommendation = topMatches[0].metadata;
+      if (topRecommendation) {
+        setFollowUpTarget(topRecommendation);
+      }
 
       const matchesFormattedForLLM = topMatches
         .map((match) => `Score: ${match.score}\n${match.metadata.pageContent}`)
@@ -127,10 +129,15 @@ Use plain text formatting, no markdown or code blocks.
   };
 
   const askFollowUpQuestion = async (conversation: IChatMessage[]) => {
+    if (!followUpTarget) {
+      console.error('No follow-up target selected');
+      return;
+    }
+
     const contextSystemMessage: IRagConversationMessage = {
       _type: 'message',
-      content: `User is asking a follow up question about ${askingAbout?.name}`,
       role: 'system',
+      content: `User is asking a follow-up question about "${followUpTarget.name}", which has the following details:\n\n${followUpTarget.pageContent}`,
     };
 
     const conversationWithoutUserQuery = [...conversation.slice(0, -1)];
@@ -185,7 +192,7 @@ Use plain text formatting, no markdown or code blocks.
 
     const conversation = parseLLMConversation(conversationWithNewQuery);
 
-    if (askingAbout) {
+    if (followUpTarget) {
       askFollowUpQuestion(conversation);
     } else {
       askGenericQuestion(conversation);
@@ -198,8 +205,7 @@ Use plain text formatting, no markdown or code blocks.
 
   return {
     conversationUI,
-    handleClickAskQuestion,
-    askingAbout,
+    followUpTarget,
     response,
     handleSubmit,
     isLoading,

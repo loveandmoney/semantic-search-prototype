@@ -8,8 +8,7 @@ import { useRagChat } from './useRagChat';
 export default function RagSearchPage() {
   const {
     conversationUI,
-    handleClickAskQuestion,
-    askingAbout,
+    followUpTarget,
     handleQuerySubmit,
     handleSubmit,
     isLoading,
@@ -48,8 +47,6 @@ export default function RagSearchPage() {
                     <RagSearchResultHouseTile
                       matchScore={house.score}
                       house={house.metadata}
-                      handleClickAskQuestion={handleClickAskQuestion}
-                      askingAbout={askingAbout}
                     />
                   </div>
                 ))}
@@ -61,11 +58,13 @@ export default function RagSearchPage() {
         {response && <p className="inline-block max-w-[75%]">{response}</p>}
       </div>
 
+      {followUpTarget && <p>Following up on {followUpTarget.name}</p>}
+
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
           placeholder={
-            askingAbout
-              ? `Ask a question about ${askingAbout.name}`
+            followUpTarget
+              ? `Ask a question about ${followUpTarget.name}`
               : 'Ask a question'
           }
           value={query}

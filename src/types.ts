@@ -38,9 +38,15 @@ export interface IRagConversationMessage extends IChatMessage {
   _type: 'message';
 }
 
+export interface IRagVectorItem {
+  id: string;
+  metadata: IHouseWithPageContent;
+  score: number;
+}
+
 export interface IRagConversationVectorItems {
   _type: 'vector_items';
-  items: IPineconeVectorResponse[];
+  items: IRagVectorItem[];
 }
 
 export type TRagConversationItem =
