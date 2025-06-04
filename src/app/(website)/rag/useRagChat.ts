@@ -76,16 +76,13 @@ Use plain text formatting, no markdown or code blocks.
         0,
         -1
       );
-      console.log('conversationWithoutUserQuery', conversationWithoutUserQuery);
       const userQueryMessage: IChatMessage =
-        conversationWithNewQuery[conversation.length - 1];
-      console.log('userQueryMessage', userQueryMessage);
+        conversationWithNewQuery[conversationWithNewQuery.length - 1];
       const updatedConversation = [
         ...conversationWithoutUserQuery,
         contextSystemMessage,
         userQueryMessage,
       ];
-      console.log('updatedConversation', updatedConversation);
 
       // Fire the stream
       apiService.openAiStream({
@@ -101,38 +98,40 @@ Use plain text formatting, no markdown or code blocks.
     }
   };
 
-  // const askFollowUpQuestion = async (conversation: IChatMessage[]) => {
-  //   if (!followUpTarget) {
-  //     console.error('No follow-up target selected');
-  //     return;
-  //   }
+  const askFollowUpQuestion = async (
+    conversationWithNewQuery: IChatMessage[]
+  ) => {
+    if (!followUpTarget) {
+      console.error('No follow-up target selected');
+      return;
+    }
 
-  //   const contextSystemMessage: IRagConversationMessage = {
-  //     _type: 'message',
-  //     role: 'system',
-  //     content: `User is asking a follow-up question about "${followUpTarget.name}", which has the following details:\n\n${followUpTarget.pageContent}`,
-  //   };
+    const contextSystemMessage: IChatMessage = {
+      role: 'system',
+      content: `User is asking a follow-up question about "${followUpTarget.name}", which has the following details:\n\n${followUpTarget.pageContent}`,
+    };
 
-  //   const conversationWithoutUserQuery = [...conversation.slice(0, -1)];
-  //   const userQueryMessage = conversation[conversation.length - 1];
-  //   const updatedConversation = [
-  //     ...conversationWithoutUserQuery,
-  //     contextSystemMessage,
-  //     userQueryMessage,
-  //   ];
+    const conversationWithoutUserQuery = conversationWithNewQuery.slice(0, -1);
+    const userQueryMessage: IChatMessage =
+      conversationWithNewQuery[conversationWithNewQuery.length - 1];
+    const updatedConversation = [
+      ...conversationWithoutUserQuery,
+      contextSystemMessage,
+      userQueryMessage,
+    ];
 
-  //   setConversation(updatedConversation);
+    setConversation(updatedConversation);
 
-  //   try {
-  //     apiService.openAiStream({
-  //       onContent: onStreamContent,
-  //       onComplete: onStreamComplete,
-  //       conversation: updatedConversation,
-  //     });
-  //   } catch (error) {
-  //     console.error('Error sending query:', error);
-  //   }
-  // };
+    try {
+      apiService.openAiStream({
+        onContent: onStreamContent,
+        onComplete: onStreamComplete,
+        conversation: updatedConversation,
+      });
+    } catch (error) {
+      console.error('Error sending query:', error);
+    }
+  };
 
   const handleQuerySubmit = async () => {
     if (!query.trim()) {
@@ -157,7 +156,7 @@ Use plain text formatting, no markdown or code blocks.
     setConversation(conversationWithNewQuery);
 
     if (followUpTarget) {
-      // askFollowUpQuestion(conversation);
+      askFollowUpQuestion(conversationWithNewQuery);
     } else {
       askGenericQuestion(conversationWithNewQuery);
     }
