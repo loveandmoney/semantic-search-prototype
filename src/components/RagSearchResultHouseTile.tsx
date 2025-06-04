@@ -3,12 +3,20 @@ import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
 
-export const RagSearchResultHouseTile = ({ house }: { house: IHouse }) => {
+export const RagSearchResultHouseTile = ({
+  house,
+  matchScore,
+}: {
+  house: IHouse;
+  matchScore?: number;
+}) => {
   const { imageUrl, name } = house;
 
   return (
     <div className="border rounded p-3 space-y-2">
       <h3 className="font-bold text-xl">{name}</h3>
+
+      {matchScore && <p>Score: {matchScore.toFixed(2)}</p>}
 
       <div className="relative aspect-[3/2] rounded overflow-hidden">
         <Image

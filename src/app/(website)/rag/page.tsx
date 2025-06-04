@@ -134,7 +134,10 @@ export default function RagSearchPage() {
               className="animate-scale-in opacity-0"
               style={{ animationDelay: `${i * 100}ms` }}
             >
-              <RagSearchResultHouseTile house={house.metadata} />
+              <RagSearchResultHouseTile
+                matchScore={house.score}
+                house={house.metadata}
+              />
             </div>
           ))}
         </div>
