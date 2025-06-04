@@ -43,6 +43,8 @@ export const POST = async (req: Request) => {
           return;
         }
 
+        let buffer = '';
+
         try {
           while (true) {
             const { done, value } = await reader.read();
@@ -52,7 +54,10 @@ export const POST = async (req: Request) => {
             }
 
             const chunk = new TextDecoder().decode(value);
-            const lines = chunk.split('\n');
+            buffer += chunk;
+
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
 
             for (const line of lines) {
               if (line.startsWith('data: ') && line !== 'data: [DONE]') {
@@ -65,7 +70,7 @@ export const POST = async (req: Request) => {
                     );
                   }
                 } catch (error) {
-                  console.error('Error parsing stream JSON:', error);
+                  console.error('Error parsing stream JSON:', error, line);
                 }
               }
             }
