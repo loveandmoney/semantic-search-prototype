@@ -1,14 +1,17 @@
 'use client';
 
+import { RagSearchResultHouseTile } from '@/components/RagSearchResultHouseTile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { apiService } from '@/lib/apiService';
-import { IChatMessage } from '@/types';
+import { IChatMessage, IPineconeVectorResponse } from '@/types';
 import { useRef, useState } from 'react';
 
 const systemPrompt = `
-  You are an opposite machine. Your answers are always incorrect. 
-  Your responses should be no longer than 2 sentences.
+You are a helpful assistant for a real estate website.
+When responding, recommend one best-fit property from the provided context, and briefly mention 1-2 other suitable options as alternatives. Use details from the context only, and do not fabricate information.
+If none of the properties seem suitable, say so. Always answer concisely and professionally.
+Use plain text formatting, no markdown or code blocks.
 `;
 
 export default function RagSearchPage() {
@@ -18,6 +21,9 @@ export default function RagSearchPage() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState('');
+  const [vectorResults, setVectorResults] = useState<IPineconeVectorResponse[]>(
+    []
+  );
 
   const responseRef = useRef('');
 
@@ -40,34 +46,59 @@ export default function RagSearchPage() {
     setResponse('');
   };
 
-  console.log(conversation);
-
   const handleQuerySubmit = async () => {
     if (!query.trim()) {
       return;
     }
 
-    setIsLoading(true);
+    const userQueryMessage: IChatMessage = {
+      content: query,
+      role: 'user',
+    };
+
+    const conversationWithNewQuery: IChatMessage[] = [
+      ...conversation,
+      userQueryMessage,
+    ];
+
     responseRef.current = '';
 
-    try {
-      const updatedConversation: IChatMessage[] = [
-        ...conversation,
-        { content: query, role: 'user' },
-      ];
+    setIsLoading(true);
+    setVectorResults([]);
+    setQuery('');
+    setConversation(conversationWithNewQuery);
 
-      setConversation(updatedConversation);
-      setQuery('');
+    try {
+      const { topMatches } = await apiService.vectorSearch({
+        query,
+      });
+      setVectorResults(topMatches);
+
+      const matchesFormattedForLLM = topMatches
+        .map((match) => `Score: ${match.score}\n${match.metadata.pageContent}`)
+        .join('\n\n');
+
+      const contextSystemMessage: IChatMessage = {
+        content: `
+          Here is some relevant context to help answer the user's question:\n\n
+          ${matchesFormattedForLLM}
+        `,
+        role: 'system',
+      };
+
+      const llmConversation: IChatMessage[] = [
+        ...conversationWithNewQuery.slice(0, -1),
+        contextSystemMessage,
+        userQueryMessage,
+      ];
 
       apiService.openAiStream({
         onContent: onStreamContent,
         onComplete: onStreamComplete,
-        conversation: updatedConversation,
+        conversation: llmConversation,
       });
     } catch (error) {
       console.error('Error sending query:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -95,9 +126,23 @@ export default function RagSearchPage() {
         {response && <p className="inline-block max-w-[75%]">{response}</p>}
       </div>
 
+      {vectorResults?.[0] && !isLoading && (
+        <div className="grid grid-cols-3 gap-4">
+          {vectorResults.map((house, i) => (
+            <div
+              key={house.id}
+              className="animate-scale-in opacity-0"
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              <RagSearchResultHouseTile house={house.metadata} />
+            </div>
+          ))}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
-          placeholder="Describe your dream home"
+          placeholder="Ask a question"
           value={query}
           disabled={isLoading}
           onChange={(e) => setQuery(e.target.value)}

@@ -7,6 +7,10 @@ export interface IHouse {
   tags: string[];
 }
 
+export interface IHouseWithPageContent extends IHouse {
+  pageContent: string;
+}
+
 export interface IDoc {
   pageContent: string;
   metadata: IHouse;
@@ -21,7 +25,7 @@ export interface IPineconeVector {
 export interface IPineconeVectorResponse {
   id: string;
   values: number[];
-  metadata: IHouse;
+  metadata: IHouseWithPageContent;
   score: number;
 }
 

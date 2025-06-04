@@ -11,9 +11,9 @@ export const POST = async (req: NextRequest) => {
   };
 
   try {
-    const relevantHouses = await vectorSearch(query, results);
+    const topMatches = await vectorSearch(query, results);
 
-    return NextResponse.json({ relevantHouses });
+    return NextResponse.json({ topMatches });
   } catch (error) {
     console.error('Error querying Pinecone:', error);
     return NextResponse.json(

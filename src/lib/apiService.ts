@@ -39,7 +39,7 @@ export const apiService = {
     });
 
     const json = (await response.json()) as {
-      results: IPineconeVectorResponse[];
+      topMatches: IPineconeVectorResponse[];
     };
     return json;
   },

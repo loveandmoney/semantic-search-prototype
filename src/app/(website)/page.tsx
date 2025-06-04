@@ -30,10 +30,10 @@ export default function HomePage() {
     setSearchedQuery(query);
 
     try {
-      const { results } = await apiService.vectorSearch({
+      const { topMatches } = await apiService.vectorSearch({
         query,
       });
-      setRelevantHouses(results);
+      setRelevantHouses(topMatches);
     } catch (error) {
       console.error('Error sending query:', error);
     } finally {
