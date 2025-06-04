@@ -1,11 +1,5 @@
 import { apiService } from '@/lib/apiService';
-import {
-  IChatMessage,
-  IHouseWithPageContent,
-  IRagConversationMessage,
-  IRagVectorItem,
-  TRagConversationItem,
-} from '@/types';
+import { IChatMessage, IHouseWithPageContent, IRagVectorItem } from '@/types';
 import { useEffect, useRef, useState } from 'react';
 
 export const useRagChat = () => {
@@ -19,27 +13,17 @@ Use plain text formatting, no markdown or code blocks.
 `;
 
   const [query, setQuery] = useState('');
-  const [conversationUI, setConversationUI] = useState<TRagConversationItem[]>([
-    { _type: 'message', content: systemPrompt, role: 'system' },
+  const [conversation, setConversation] = useState<IChatMessage[]>([
+    { content: systemPrompt, role: 'system' },
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState('');
   const [followUpTarget, setFollowUpTarget] =
     useState<IHouseWithPageContent | null>(null);
+  // const [recommendations, setRecommendations] = useState<IRagVectorItem[]>([]);
 
   const responseRef = useRef('');
   const vectorMatchesRef = useRef<IRagVectorItem[]>([]);
-
-  const parseLLMConversation = (
-    items: TRagConversationItem[]
-  ): IChatMessage[] => {
-    return items
-      .filter((item) => item._type === 'message')
-      .map((item) => ({
-        role: item.role,
-        content: item.content,
-      }));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,37 +38,27 @@ Use plain text formatting, no markdown or code blocks.
   const onStreamComplete = () => {
     setIsLoading(false);
 
-    setConversationUI((prev) => {
-      const updatedConversation: TRagConversationItem[] = [
-        ...prev,
-        { _type: 'message', content: responseRef.current, role: 'assistant' },
-      ];
-
-      if (vectorMatchesRef.current) {
-        updatedConversation.push({
-          _type: 'vector_items',
-          items: vectorMatchesRef.current,
-        });
-      }
-
-      return updatedConversation;
-    });
+    setConversation((prev) => [
+      ...prev,
+      { content: responseRef.current, role: 'assistant' },
+    ]);
 
     setResponse('');
   };
 
-  const askGenericQuestion = async (conversation: IChatMessage[]) => {
+  const askGenericQuestion = async (
+    conversationWithNewQuery: IChatMessage[]
+  ) => {
     try {
-      const { topMatches } = await apiService.vectorSearch({
-        query,
-      });
+      const { topMatches } = await apiService.vectorSearch({ query });
+
       vectorMatchesRef.current = topMatches.map((match) => ({
         id: match.id,
         score: match.score,
         metadata: match.metadata,
       }));
 
-      const topRecommendation = topMatches[0].metadata;
+      const topRecommendation = topMatches[0]?.metadata;
       if (topRecommendation) {
         setFollowUpTarget(topRecommendation);
       }
@@ -93,93 +67,85 @@ Use plain text formatting, no markdown or code blocks.
         .map((match) => `Score: ${match.score}\n${match.metadata.pageContent}`)
         .join('\n\n');
 
-      const contextSystemMessage: IRagConversationMessage = {
-        _type: 'message',
-        content: `
-          Here is some relevant context to help answer the user's question:\n\n
-          ${matchesFormattedForLLM}
-        `,
+      const contextSystemMessage: IChatMessage = {
+        content: `Here is some relevant context to help answer the user's question:\n\n${matchesFormattedForLLM}`,
         role: 'system',
       };
 
-      const conversationWithoutUserQuery = [...conversation.slice(0, -1)];
-      const userQueryMessage = conversation[conversation.length - 1];
+      const conversationWithoutUserQuery = conversationWithNewQuery.slice(
+        0,
+        -1
+      );
+      console.log('conversationWithoutUserQuery', conversationWithoutUserQuery);
+      const userQueryMessage: IChatMessage =
+        conversationWithNewQuery[conversation.length - 1];
+      console.log('userQueryMessage', userQueryMessage);
       const updatedConversation = [
         ...conversationWithoutUserQuery,
         contextSystemMessage,
         userQueryMessage,
       ];
+      console.log('updatedConversation', updatedConversation);
 
-      setConversationUI((prev) => [
-        ...prev,
-        {
-          ...contextSystemMessage,
-          _type: 'message',
-        },
-      ]);
-
+      // Fire the stream
       apiService.openAiStream({
         onContent: onStreamContent,
         onComplete: onStreamComplete,
         conversation: updatedConversation,
       });
+
+      // Update state
+      setConversation(updatedConversation);
     } catch (error) {
       console.error('Error sending query:', error);
     }
   };
 
-  const askFollowUpQuestion = async (conversation: IChatMessage[]) => {
-    if (!followUpTarget) {
-      console.error('No follow-up target selected');
-      return;
-    }
+  // const askFollowUpQuestion = async (conversation: IChatMessage[]) => {
+  //   if (!followUpTarget) {
+  //     console.error('No follow-up target selected');
+  //     return;
+  //   }
 
-    const contextSystemMessage: IRagConversationMessage = {
-      _type: 'message',
-      role: 'system',
-      content: `User is asking a follow-up question about "${followUpTarget.name}", which has the following details:\n\n${followUpTarget.pageContent}`,
-    };
+  //   const contextSystemMessage: IRagConversationMessage = {
+  //     _type: 'message',
+  //     role: 'system',
+  //     content: `User is asking a follow-up question about "${followUpTarget.name}", which has the following details:\n\n${followUpTarget.pageContent}`,
+  //   };
 
-    const conversationWithoutUserQuery = [...conversation.slice(0, -1)];
-    const userQueryMessage = conversation[conversation.length - 1];
-    const updatedConversation = [
-      ...conversationWithoutUserQuery,
-      contextSystemMessage,
-      userQueryMessage,
-    ];
+  //   const conversationWithoutUserQuery = [...conversation.slice(0, -1)];
+  //   const userQueryMessage = conversation[conversation.length - 1];
+  //   const updatedConversation = [
+  //     ...conversationWithoutUserQuery,
+  //     contextSystemMessage,
+  //     userQueryMessage,
+  //   ];
 
-    setConversationUI((prev) => [
-      ...prev,
-      {
-        ...contextSystemMessage,
-        _type: 'message',
-      },
-    ]);
+  //   setConversation(updatedConversation);
 
-    try {
-      apiService.openAiStream({
-        onContent: onStreamContent,
-        onComplete: onStreamComplete,
-        conversation: updatedConversation,
-      });
-    } catch (error) {
-      console.error('Error sending query:', error);
-    }
-  };
+  //   try {
+  //     apiService.openAiStream({
+  //       onContent: onStreamContent,
+  //       onComplete: onStreamComplete,
+  //       conversation: updatedConversation,
+  //     });
+  //   } catch (error) {
+  //     console.error('Error sending query:', error);
+  //   }
+  // };
 
   const handleQuerySubmit = async () => {
     if (!query.trim()) {
       return;
     }
 
-    const userQueryMessage: IRagConversationMessage = {
+    const userQueryMessage: IChatMessage = {
       content: query,
       role: 'user',
-      _type: 'message',
     };
 
-    const conversationWithNewQuery: TRagConversationItem[] = [
-      ...conversationUI,
+    const conversationWithNewQuery: IChatMessage[] = [
+      ...conversation,
       userQueryMessage,
     ];
 
@@ -188,23 +154,21 @@ Use plain text formatting, no markdown or code blocks.
 
     setIsLoading(true);
     setQuery('');
-    setConversationUI(conversationWithNewQuery);
-
-    const conversation = parseLLMConversation(conversationWithNewQuery);
+    setConversation(conversationWithNewQuery);
 
     if (followUpTarget) {
-      askFollowUpQuestion(conversation);
+      // askFollowUpQuestion(conversation);
     } else {
-      askGenericQuestion(conversation);
+      askGenericQuestion(conversationWithNewQuery);
     }
   };
 
   useEffect(() => {
-    console.log('Conversation UI updated:', conversationUI);
-  }, [conversationUI]);
+    console.log(conversation);
+  }, [conversation]);
 
   return {
-    conversationUI,
+    conversation,
     followUpTarget,
     response,
     handleSubmit,

@@ -48,6 +48,8 @@ export const apiService = {
     onComplete,
     conversation,
   }: IStreamInitiator) {
+    console.log('openAiStream called with conversation:', conversation);
+
     const response = await fetch(endpoint.openAiStream, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

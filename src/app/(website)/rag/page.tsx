@@ -1,13 +1,12 @@
 'use client';
 
-import { RagSearchResultHouseTile } from '@/components/RagSearchResultHouseTile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRagChat } from './useRagChat';
 
 export default function RagSearchPage() {
   const {
-    conversationUI,
+    conversation,
     followUpTarget,
     handleQuerySubmit,
     handleSubmit,
@@ -22,9 +21,9 @@ export default function RagSearchPage() {
       <h1 className="text-2xl font-bold">RAG Search</h1>
 
       <div className="space-y-4">
-        {conversationUI.map((item, i) => (
+        {conversation.map((item, i) => (
           <div key={i}>
-            {item._type === 'message' && item.role === 'user' && (
+            {item.role === 'user' && (
               <div className="flex justify-end">
                 <p className="bg-black/10 px-2 py-1 rounded inline-block max-w-[75%]">
                   {item.content}
@@ -32,11 +31,11 @@ export default function RagSearchPage() {
               </div>
             )}
 
-            {item._type === 'message' && item.role === 'assistant' && (
+            {item.role === 'assistant' && (
               <p className="inline-block max-w-[75%]">{item.content}</p>
             )}
 
-            {item._type === 'vector_items' && (
+            {/* {item._type === 'vector_items' && (
               <div className="grid grid-cols-3 gap-4">
                 {item.items.map((house, i) => (
                   <div
@@ -51,7 +50,7 @@ export default function RagSearchPage() {
                   </div>
                 ))}
               </div>
-            )}
+            )} */}
           </div>
         ))}
 
