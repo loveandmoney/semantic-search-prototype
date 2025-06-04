@@ -1,3 +1,4 @@
+import { LLM_MODEL, OPENAI_API_URL } from '@/lib/openAi';
 import { IChatMessage } from '@/types';
 import { NextResponse } from 'next/server';
 
@@ -16,16 +17,16 @@ export const POST = async (req: Request) => {
       conversation: IChatMessage[];
     };
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(OPENAI_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: LLM_MODEL,
         messages: conversation,
-        temperature: 0.8,
+        temperature: 0.65,
         stream: true,
       }),
     });

@@ -1,6 +1,6 @@
 import { apiService } from '@/lib/apiService';
 import { IChatMessage, IHouseWithPageContent, IRagVectorItem } from '@/types';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 export const useRagChat = () => {
   const systemPrompt = `
@@ -44,6 +44,39 @@ Use plain text formatting, no markdown or code blocks.
     ]);
 
     setResponse('');
+  };
+
+  const determineIfIsFollowUpQuestion = async (): Promise<boolean> => {
+    if (!followUpTarget) {
+      return false;
+    }
+
+    const systemPrompt: IChatMessage = {
+      role: 'system',
+      content: `
+          Determine whether the following user query is a follow-up question about results from a previous query.
+          If the user is changing their mind, or wanting to explore a different options, it is not a follow-up.
+          
+          Conversation history:
+          ${conversation.map((msg) => `${msg.role}: ${msg.content}`).join('\n')}
+
+          User query:
+          "${query}"
+
+          Reply with only "yes" or "no".
+        `,
+    };
+
+    const response = await apiService.openAi({
+      conversation: [systemPrompt],
+    });
+
+    console.log('Follow-up question response:', response);
+    if (response.toLowerCase().trim() === 'yes') {
+      return true;
+    }
+
+    return false;
   };
 
   const askGenericQuestion = async (
@@ -157,16 +190,20 @@ Use plain text formatting, no markdown or code blocks.
     setQuery('');
     setConversation(conversationWithNewQuery);
 
-    if (followUpTarget) {
+    const isFirstQuestion = conversationWithNewQuery.length === 2; // System prompt + user query
+
+    if (isFirstQuestion) {
+      askGenericQuestion(conversationWithNewQuery);
+      return;
+    }
+
+    const isFollowUp = await determineIfIsFollowUpQuestion();
+    if (isFollowUp) {
       askFollowUpQuestion(conversationWithNewQuery);
     } else {
       askGenericQuestion(conversationWithNewQuery);
     }
   };
-
-  useEffect(() => {
-    console.log(conversation);
-  }, [conversation]);
 
   return {
     conversation,

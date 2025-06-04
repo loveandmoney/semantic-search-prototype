@@ -1,4 +1,8 @@
-import { IPineconeVectorResponse, IStreamInitiator } from '@/types';
+import {
+  IChatMessage,
+  IPineconeVectorResponse,
+  IStreamInitiator,
+} from '@/types';
 import { handleStreamResponse } from './streamHandler';
 
 const apiEndpoint = `${process.env.NEXT_PUBLIC_SITE_URL}/api`;
@@ -7,6 +11,7 @@ const endpoint = {
   vectorSearch: `${apiEndpoint}/vector-search`,
   updateEmbeddings: `${apiEndpoint}/update-embeddings`,
   openAiStream: `${apiEndpoint}/openai-stream`,
+  openAi: `${apiEndpoint}/openai`,
 };
 
 export const apiService = {
@@ -57,5 +62,23 @@ export const apiService = {
     });
 
     await handleStreamResponse({ response, onContent, onComplete });
+  },
+  async openAi({
+    conversation,
+  }: {
+    conversation: IChatMessage[];
+  }): Promise<string> {
+    const response = await fetch(endpoint.openAi, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversation }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch AI response');
+    }
+
+    const data = await response.json();
+    return data.content ?? '';
   },
 };
