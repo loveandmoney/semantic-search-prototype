@@ -20,7 +20,7 @@ Use plain text formatting, no markdown or code blocks.
   const [response, setResponse] = useState('');
   const [followUpTarget, setFollowUpTarget] =
     useState<IHouseWithPageContent | null>(null);
-  // const [recommendations, setRecommendations] = useState<IRagVectorItem[]>([]);
+  const [recommendations, setRecommendations] = useState<IRagVectorItem[]>([]);
 
   const responseRef = useRef('');
   const vectorMatchesRef = useRef<IRagVectorItem[]>([]);
@@ -51,6 +51,8 @@ Use plain text formatting, no markdown or code blocks.
   ) => {
     try {
       const { topMatches } = await apiService.vectorSearch({ query });
+
+      setRecommendations(topMatches);
 
       vectorMatchesRef.current = topMatches.map((match) => ({
         id: match.id,
@@ -175,5 +177,6 @@ Use plain text formatting, no markdown or code blocks.
     query,
     setQuery,
     handleQuerySubmit,
+    recommendations,
   };
 };
