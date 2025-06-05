@@ -17,6 +17,7 @@ export const POST = async (req: NextRequest) => {
     const results = await client.collections('houses').documents().search({
       q: query,
       query_by: 'name,description,tags',
+      exclude_fields: 'embedding',
     });
 
     return NextResponse.json({ results });

@@ -17,9 +17,11 @@ const endpoint = {
   updateEmbeddings: `${apiEndpoint}/update-embeddings`,
   openAiStream: `${apiEndpoint}/openai-stream`,
   openAi: `${apiEndpoint}/openai`,
+  openAiGenerateEmbedding: `${apiEndpoint}/openai-generate-embedding`,
   typesenseCreateCollection: `${apiEndpoint}/typesense-create-collection`,
   typesenseAddDocuments: `${apiEndpoint}/typesense-add-documents`,
   typesenseSearchCollection: `${apiEndpoint}/typesense-search-collection`,
+  typesenseVectorSearchCollection: `${apiEndpoint}/typesense-vector-search-collection`,
 };
 
 export const apiService = {
@@ -127,5 +129,45 @@ export const apiService = {
     };
 
     return results.hits || [];
+  },
+  async typesenseVectorSearchCollection({
+    query,
+  }: {
+    query: string;
+  }): Promise<SearchResponseHit<IHouse>[]> {
+    const response = await fetch(endpoint.typesenseVectorSearchCollection, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to perform vector search');
+    }
+
+    const { results } = (await response.json()) as {
+      results: SearchResponseHit<IHouse>[];
+    };
+
+    return results;
+  },
+  async openAiGenerateEmbedding({
+    textContent,
+  }: {
+    textContent: string;
+  }): Promise<number[]> {
+    const response = await fetch(endpoint.openAiGenerateEmbedding, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ textContent }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate OpenAI embedding');
+    }
+
+    const { embedding } = (await response.json()) as { embedding: number[] };
+
+    return embedding;
   },
 };

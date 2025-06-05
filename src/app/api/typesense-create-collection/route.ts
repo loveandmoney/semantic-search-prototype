@@ -1,3 +1,4 @@
+import { EMBEDDING_DIMENSIONS } from '@/lib/openAi';
 import { client } from '@/lib/typesense';
 import { NextResponse } from 'next/server';
 
@@ -11,6 +12,7 @@ export const POST = async () => {
         { name: 'description', type: 'string' },
         { name: 'price', type: 'int32' },
         { name: 'tags', type: 'string[]', facet: true },
+        { name: 'embedding', type: 'float[]', num_dim: EMBEDDING_DIMENSIONS },
       ],
       default_sorting_field: 'price',
     });
