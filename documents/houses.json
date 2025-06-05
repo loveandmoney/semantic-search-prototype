@@ -5,7 +5,7 @@
       "name": "Azure Oasis",
       "description": "A contemporary home with an open-plan living space and serene garden views.",
       "price": 450000,
-      "imageUrl": "https://images.unsplash.com/photo-1622015663084-307d19eabbbf?w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1622015663084-307d19eabbbf",
       "tags": ["modern", "open-plan", "garden"]
     },
     {

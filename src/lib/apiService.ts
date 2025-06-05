@@ -1,9 +1,14 @@
 import {
   IChatMessage,
+  IHouse,
   IPineconeVectorResponse,
   IStreamInitiator,
 } from '@/types';
 import { handleStreamResponse } from './streamHandler';
+import {
+  SearchResponse,
+  SearchResponseHit,
+} from 'typesense/lib/Typesense/Documents';
 
 const apiEndpoint = `${process.env.NEXT_PUBLIC_SITE_URL}/api`;
 
@@ -12,6 +17,9 @@ const endpoint = {
   updateEmbeddings: `${apiEndpoint}/update-embeddings`,
   openAiStream: `${apiEndpoint}/openai-stream`,
   openAi: `${apiEndpoint}/openai`,
+  typesenseCreateCollection: `${apiEndpoint}/typesense-create-collection`,
+  typesenseAddDocuments: `${apiEndpoint}/typesense-add-documents`,
+  typesenseSearchCollection: `${apiEndpoint}/typesense-search-collection`,
 };
 
 export const apiService = {
@@ -80,5 +88,44 @@ export const apiService = {
 
     const data = await response.json();
     return data.content ?? '';
+  },
+  async typesenseCreateCollection(): Promise<void> {
+    const response = await fetch(endpoint.typesenseCreateCollection, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create Typesense collection');
+    }
+  },
+  async typesenseAddDocuments(): Promise<void> {
+    const response = await fetch(endpoint.typesenseAddDocuments, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add Typesense documents');
+    }
+  },
+  async typesenseSearchCollection({
+    query,
+  }: {
+    query: string;
+  }): Promise<SearchResponseHit<IHouse>[]> {
+    const response = await fetch(endpoint.typesenseSearchCollection, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add Typesense documents');
+    }
+
+    const { results } = (await response.json()) as {
+      results: SearchResponse<IHouse>;
+    };
+
+    return results.hits || [];
   },
 };

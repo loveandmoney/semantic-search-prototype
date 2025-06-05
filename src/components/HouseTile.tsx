@@ -5,14 +5,14 @@ export const HouseTile = ({
   matchScore,
 }: {
   house: IHouse;
-  matchScore: number;
+  matchScore?: number;
 }) => {
   const { description, imageUrl, name, tags } = house;
 
   return (
     <div className="border rounded p-3 space-y-2">
       <h3 className="font-bold text-xl">{name}</h3>
-      <p>Match score: {matchScore}</p>
+      {matchScore && <p>Match score: {matchScore}</p>}
 
       <div className="relative aspect-[3/2] rounded overflow-hidden">
         <img
