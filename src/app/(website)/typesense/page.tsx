@@ -7,12 +7,11 @@ import { apiService } from '@/lib/apiService';
 import { IHouse } from '@/types';
 import clsx from 'clsx';
 import { useState } from 'react';
-import { SearchResponseHit } from 'typesense/lib/Typesense/Documents';
 
 export default function TypesenseSearchPage() {
   const [searchType, setSearchType] = useState<'keyword' | 'vector'>('keyword');
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResponseHit<IHouse>[]>([]);
+  const [results, setResults] = useState<IHouse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const keywordSearch = async () => {
@@ -20,7 +19,7 @@ export default function TypesenseSearchPage() {
       const results = await apiService.typesenseSearchCollection({
         query,
       });
-      setResults(results);
+      setResults(results.map((hit) => hit.document));
     } catch (error) {
       console.error('Error performing search:', error);
     } finally {
@@ -34,7 +33,7 @@ export default function TypesenseSearchPage() {
       const results = await apiService.typesenseVectorSearchCollection({
         query,
       });
-      setResults(results);
+      setResults(results.map((hit) => hit.document));
     } catch (error) {
       console.error('Error performing search:', error);
     } finally {
@@ -96,23 +95,11 @@ export default function TypesenseSearchPage() {
 
           <div className="grid grid-cols-3 gap-2">
             {results.map((hit) => (
-              <HouseTile house={hit.document} key={hit.document.id} />
+              <HouseTile house={hit} key={hit.id} />
             ))}
           </div>
         </div>
       )}
-
-      {/* <div className="space-y-2 p-3 rounded border mt-20">
-        <p>Danger zone: proceed with caution</p>
-        <div className="grid grid-cols-2 gap-2">
-          <Button onClick={() => apiService.typesenseCreateCollection()}>
-            Create Collection
-          </Button>
-          <Button onClick={() => apiService.typesenseAddDocuments()}>
-            Add Documents
-          </Button>
-        </div>
-      </div> */}
     </main>
   );
 }

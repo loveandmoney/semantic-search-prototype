@@ -1,10 +1,10 @@
 import { apiService } from '@/lib/apiService';
 import { client } from '@/lib/typesense';
-import { IHouse } from '@/types';
+import { IHouse, ITypesenseVectorSearchHit } from '@/types';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const POST = async (req: NextRequest) => {
-  const NUMBER_OF_RESULTS = 10;
+  const NUMBER_OF_RESULTS = 3;
 
   const { query } = (await req.json()) as {
     query: string;
@@ -35,7 +35,10 @@ export const POST = async (req: NextRequest) => {
       ],
     });
 
-    return NextResponse.json({ results: results[0].hits || [] });
+    const hits = (results[0].hits ||
+      []) as unknown as ITypesenseVectorSearchHit<IHouse>[];
+
+    return NextResponse.json({ results: hits });
   } catch (error) {
     console.error('Failed to perform vector search:', error);
 

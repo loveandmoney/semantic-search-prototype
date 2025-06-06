@@ -1,5 +1,9 @@
 import { apiService } from '@/lib/apiService';
-import { IChatMessage, IHouseWithPageContent, IRagVectorItem } from '@/types';
+import {
+  IChatMessage,
+  IHouseWithTextContent,
+  ITypesenseVectorSearchHit,
+} from '@/types';
 import { useRef, useState } from 'react';
 
 export const useTypesenseRagChat = () => {
@@ -19,11 +23,12 @@ Use plain text formatting, no markdown or code blocks.
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState('');
   const [followUpTarget, setFollowUpTarget] =
-    useState<IHouseWithPageContent | null>(null);
-  const [recommendations, setRecommendations] = useState<IRagVectorItem[]>([]);
+    useState<IHouseWithTextContent | null>(null);
+  const [recommendations, setRecommendations] = useState<
+    ITypesenseVectorSearchHit<IHouseWithTextContent>[]
+  >([]);
 
   const responseRef = useRef('');
-  const vectorMatchesRef = useRef<IRagVectorItem[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,23 +88,22 @@ Use plain text formatting, no markdown or code blocks.
     conversationWithNewQuery: IChatMessage[]
   ) => {
     try {
-      const { topMatches } = await apiService.vectorSearch({ query });
+      const results = await apiService.typesenseVectorSearchCollection({
+        query,
+      });
 
-      setRecommendations(topMatches);
+      setRecommendations(results);
 
-      vectorMatchesRef.current = topMatches.map((match) => ({
-        id: match.id,
-        score: match.score,
-        metadata: match.metadata,
-      }));
-
-      const topRecommendation = topMatches[0]?.metadata;
+      const topRecommendation = results[0]?.document;
       if (topRecommendation) {
         setFollowUpTarget(topRecommendation);
       }
 
-      const matchesFormattedForLLM = topMatches
-        .map((match) => `Score: ${match.score}\n${match.metadata.pageContent}`)
+      const matchesFormattedForLLM = results
+        .map(
+          (match) =>
+            `Vector distance: ${match.vector_distance}\n${match.document.textContent}`
+        )
         .join('\n\n');
 
       const contextSystemMessage: IChatMessage = {
@@ -143,7 +147,7 @@ Use plain text formatting, no markdown or code blocks.
 
     const contextSystemMessage: IChatMessage = {
       role: 'system',
-      content: `User is asking a follow-up question about "${followUpTarget.name}", which has the following details:\n\n${followUpTarget.pageContent}`,
+      content: `User is asking a follow-up question about "${followUpTarget.name}", which has the following details:\n\n${followUpTarget.textContent}`,
     };
 
     const conversationWithoutUserQuery = conversationWithNewQuery.slice(0, -1);
@@ -184,7 +188,6 @@ Use plain text formatting, no markdown or code blocks.
     ];
 
     responseRef.current = '';
-    vectorMatchesRef.current = [];
 
     setIsLoading(true);
     setQuery('');

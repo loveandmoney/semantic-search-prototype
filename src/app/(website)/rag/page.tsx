@@ -2,12 +2,12 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useRagChat } from './useRagChat';
+import { useTypesenseRagChat } from './useTypesenseRagChat';
 import { RagSearchResultHouseTile } from '@/components/RagSearchResultHouseTile';
 import clsx from 'clsx';
-import { IRagVectorItem } from '@/types';
+import { IHouseWithTextContent, ITypesenseVectorSearchHit } from '@/types';
 
-export default function RagSearchPage() {
+export default function TypesenseRagSearchPage() {
   const {
     conversation,
     followUpTarget,
@@ -18,7 +18,7 @@ export default function RagSearchPage() {
     response,
     setQuery,
     recommendations,
-  } = useRagChat();
+  } = useTypesenseRagChat();
 
   return (
     <main
@@ -27,7 +27,7 @@ export default function RagSearchPage() {
         recommendations?.[0] ? 'max-w-[1200px]' : 'max-w-[600px]'
       )}
     >
-      <h1 className="text-2xl font-bold">RAG Search</h1>
+      <h1 className="text-2xl font-bold">Typesense RAG Search</h1>
 
       <div className={clsx(recommendations?.[0] && 'grid grid-cols-5 gap-4')}>
         <div className="space-y-6 col-span-3">
@@ -78,7 +78,7 @@ export default function RagSearchPage() {
 const Recommendations = ({
   recommendations,
 }: {
-  recommendations: IRagVectorItem[];
+  recommendations: ITypesenseVectorSearchHit<IHouseWithTextContent>[];
 }) => {
   if (!recommendations?.[0]) {
     return null;
@@ -86,23 +86,26 @@ const Recommendations = ({
 
   return (
     <div className="col-span-2 space-y-2">
-      <div key={recommendations[0].id} className="animate-scale-in opacity-0">
+      <div
+        key={recommendations[0].document.id}
+        className="animate-scale-in opacity-0"
+      >
         <RagSearchResultHouseTile
-          matchScore={recommendations[0].score}
-          house={recommendations[0].metadata}
+          matchScore={recommendations[0].vector_distance}
+          house={recommendations[0].document}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         {recommendations.slice(1).map((house, i) => (
           <div
-            key={house.id}
+            key={house.document.id}
             className="animate-scale-in opacity-0"
             style={{ animationDelay: `${i + 1 * 100}ms` }}
           >
             <RagSearchResultHouseTile
-              matchScore={house.score}
-              house={house.metadata}
+              matchScore={house.vector_distance}
+              house={house.document}
             />
           </div>
         ))}

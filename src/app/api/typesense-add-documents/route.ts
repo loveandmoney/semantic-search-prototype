@@ -11,6 +11,7 @@ export const POST = async () => {
           Name: ${house.name}. 
           Description:${house.description}.
           Tags: ${house.tags.join(', ')}.
+          Price: ${house.price}.
         `;
 
         const embedding = await apiService.openAiGenerateEmbedding({
@@ -20,11 +21,15 @@ export const POST = async () => {
         return {
           ...house,
           embedding,
+          textContent,
         };
       })
     );
 
-    await client.collections('houses').documents().import(housesWithEmbeddings);
+    await client
+      .collections('houses')
+      .documents()
+      .import(housesWithEmbeddings, { action: 'upsert' });
 
     return NextResponse.json({});
   } catch (error) {

@@ -1,8 +1,8 @@
 import {
   IChatMessage,
-  IHouse,
-  IPineconeVectorResponse,
+  IHouseWithTextContent,
   IStreamInitiator,
+  ITypesenseVectorSearchHit,
 } from '@/types';
 import { handleStreamResponse } from './streamHandler';
 import {
@@ -13,8 +13,6 @@ import {
 const apiEndpoint = `${process.env.NEXT_PUBLIC_SITE_URL}/api`;
 
 const endpoint = {
-  vectorSearch: `${apiEndpoint}/vector-search`,
-  updateEmbeddings: `${apiEndpoint}/update-embeddings`,
   openAiStream: `${apiEndpoint}/openai-stream`,
   openAi: `${apiEndpoint}/openai`,
   openAiGenerateEmbedding: `${apiEndpoint}/openai-generate-embedding`,
@@ -25,39 +23,6 @@ const endpoint = {
 };
 
 export const apiService = {
-  async updateEmbeddings() {
-    const response = await fetch(endpoint.updateEmbeddings, {
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      throw new Error('Error creating index and embeddings');
-    }
-
-    const json = await response.json();
-    return json;
-  },
-  async vectorSearch({
-    query,
-    results = 3,
-  }: {
-    query: string;
-    results?: number;
-  }) {
-    if (!query) {
-      throw new Error('Query cannot be empty');
-    }
-
-    const response = await fetch(endpoint.vectorSearch, {
-      method: 'POST',
-      body: JSON.stringify({ query, results }),
-    });
-
-    const json = (await response.json()) as {
-      topMatches: IPineconeVectorResponse[];
-    };
-    return json;
-  },
   async openAiStream({
     onContent,
     onComplete,
@@ -113,7 +78,7 @@ export const apiService = {
     query,
   }: {
     query: string;
-  }): Promise<SearchResponseHit<IHouse>[]> {
+  }): Promise<SearchResponseHit<IHouseWithTextContent>[]> {
     const response = await fetch(endpoint.typesenseSearchCollection, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -125,7 +90,7 @@ export const apiService = {
     }
 
     const { results } = (await response.json()) as {
-      results: SearchResponse<IHouse>;
+      results: SearchResponse<IHouseWithTextContent>;
     };
 
     return results.hits || [];
@@ -134,7 +99,7 @@ export const apiService = {
     query,
   }: {
     query: string;
-  }): Promise<SearchResponseHit<IHouse>[]> {
+  }): Promise<ITypesenseVectorSearchHit<IHouseWithTextContent>[]> {
     const response = await fetch(endpoint.typesenseVectorSearchCollection, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -146,7 +111,7 @@ export const apiService = {
     }
 
     const { results } = (await response.json()) as {
-      results: SearchResponseHit<IHouse>[];
+      results: ITypesenseVectorSearchHit<IHouseWithTextContent>[];
     };
 
     return results;
