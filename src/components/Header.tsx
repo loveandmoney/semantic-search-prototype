@@ -8,6 +8,7 @@ export const Header = () => {
       <nav className="flex gap-4 p-8">
         <LinkButton href="/" title="Semantic Search" />
         <LinkButton href="/rag" title="RAG Search" />
+        <LinkButton href="/typesense-rag" title="Typesense RAG" />
         <LinkButton href="/typesense" title="Typesense" />
       </nav>
     </header>
