@@ -27,16 +27,18 @@ export interface IStreamInitiator {
   onComplete?: () => void;
 }
 
+export type TBuildRegion =
+  | 'south-east'
+  | 'west'
+  | 'north'
+  | 'geelong'
+  | 'gippsland'
+  | 'out-of-build-region';
+
 export interface ISuburb {
   name: string;
   postcode: string;
-  region:
-    | 'south-east'
-    | 'west'
-    | 'north'
-    | 'geelong'
-    | 'gippsland'
-    | 'out-of-build-region';
+  region: TBuildRegion;
   feasibilityRequired: boolean;
 }
 

@@ -1,8 +1,5 @@
 'use client';
 
-// ! Note
-// This component needs to be wrapped with <LoadScript> to work
-
 import React, { Dispatch, SetStateAction, useRef } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import mapStyles from './mapStyles';
@@ -62,6 +59,10 @@ const Map = ({ scriptHasLoaded, setSelectedFeature }: IProps) => {
     fetchAndSetGeoJsonData();
   };
 
+  if (!scriptHasLoaded) {
+    return null;
+  }
+
   return (
     <div className="absolute top-0 left-0 w-full h-full">
       {scriptHasLoaded && (
@@ -76,7 +77,7 @@ const Map = ({ scriptHasLoaded, setSelectedFeature }: IProps) => {
             styles: mapStyles,
             maxZoom: 15,
           }}
-        ></GoogleMap>
+        />
       )}
     </div>
   );
