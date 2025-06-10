@@ -44,3 +44,20 @@ export interface IGeopoint {
   lat: number;
   lng: number;
 }
+
+export interface IGeoJsonFeature {
+  type: 'Feature';
+  properties: {
+    LOCALITY_NAME: string;
+    POSTCODE: string;
+  };
+  geometry: {
+    type: 'Polygon' | 'MultiPolygon';
+    coordinates: number[][][] | number[][][][];
+  };
+}
+
+export interface IGeoJsonFeatureCollection {
+  type: 'FeatureCollection';
+  features: IGeoJsonFeature[];
+}

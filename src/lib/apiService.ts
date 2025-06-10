@@ -1,5 +1,6 @@
 import {
   IChatMessage,
+  IGeoJsonFeatureCollection,
   IHouseWithTextContent,
   IStreamInitiator,
   ITypesenseVectorSearchHit,
@@ -20,6 +21,7 @@ const endpoint = {
   typesenseAddDocuments: `${apiEndpoint}/typesense-add-documents`,
   typesenseSearchCollection: `${apiEndpoint}/typesense-search-collection`,
   typesenseVectorSearchCollection: `${apiEndpoint}/typesense-vector-search-collection`,
+  geoJson: `${apiEndpoint}/geojson`,
 };
 
 export const apiService = {
@@ -134,5 +136,14 @@ export const apiService = {
     const { embedding } = (await response.json()) as { embedding: number[] };
 
     return embedding;
+  },
+  async geoJson(): Promise<IGeoJsonFeatureCollection> {
+    const response = await fetch(endpoint.geoJson);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch GeoJSON');
+    }
+
+    return response.json();
   },
 };
