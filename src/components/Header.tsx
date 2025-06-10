@@ -9,6 +9,7 @@ export const Header = () => {
         <LinkButton href="/" title="Home" />
         <LinkButton href="/rag" title="RAG" />
         <LinkButton href="/typesense" title="Typesense" />
+        <LinkButton href="/suburb-search" title="Suburbs" />
         <LinkButton href="/danger-zone" title="Danger Zone" />
       </nav>
     </header>

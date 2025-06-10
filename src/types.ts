@@ -26,3 +26,21 @@ export interface IStreamInitiator {
   onContent: (chunk: string) => void;
   onComplete?: () => void;
 }
+
+export interface ISuburb {
+  name: string;
+  postcode: string;
+  region:
+    | 'south-east'
+    | 'west'
+    | 'north'
+    | 'geelong'
+    | 'gippsland'
+    | 'out-of-build-region';
+  feasibilityRequired: boolean;
+}
+
+export interface IGeopoint {
+  lat: number;
+  lng: number;
+}
