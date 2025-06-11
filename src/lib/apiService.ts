@@ -1,8 +1,10 @@
 import {
   IChatMessage,
   IGeoJsonFeatureCollection,
+  IGeoJsonFeatureCollectionWithBuildData,
   IHouseWithTextContent,
   IStreamInitiator,
+  ISuburbBuildData,
   ITypesenseVectorSearchHit,
 } from '@/types';
 import { handleStreamResponse } from './streamHandler';
@@ -21,7 +23,9 @@ const endpoint = {
   typesenseAddDocuments: `${apiEndpoint}/typesense-add-documents`,
   typesenseSearchCollection: `${apiEndpoint}/typesense-search-collection`,
   typesenseVectorSearchCollection: `${apiEndpoint}/typesense-vector-search-collection`,
-  geoJson: `${apiEndpoint}/geojson`,
+  getRawGeoJson: `${apiEndpoint}/get-raw-geojson`,
+  getSuburbBuildData: `${apiEndpoint}/get-suburb-build-data`,
+  getGeoJsonWithBuildData: `${apiEndpoint}/get-geojson-with-build-data`,
 };
 
 export const apiService = {
@@ -137,13 +141,51 @@ export const apiService = {
 
     return embedding;
   },
-  async geoJson(): Promise<IGeoJsonFeatureCollection> {
-    const response = await fetch(endpoint.geoJson);
+  async getRawGeoJson(): Promise<IGeoJsonFeatureCollection> {
+    const response = await fetch(endpoint.getRawGeoJson);
 
     if (!response.ok) {
       throw new Error('Failed to fetch GeoJSON');
     }
 
     return response.json();
+  },
+  async getSuburbBuildData({
+    postcode,
+    suburb,
+  }: {
+    suburb: string;
+    postcode: string;
+  }): Promise<ISuburbBuildData> {
+    const response = await fetch(endpoint.getSuburbBuildData, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postcode, suburb }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate OpenAI embedding');
+    }
+
+    const { suburbBuildData } = (await response.json()) as {
+      suburbBuildData: ISuburbBuildData;
+    };
+
+    return suburbBuildData;
+  },
+  async getGeoJsonWithBuildData(): Promise<IGeoJsonFeatureCollectionWithBuildData> {
+    const response = await fetch(endpoint.getGeoJsonWithBuildData, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get geojson with build data');
+    }
+
+    const { geoJsonCollection } = (await response.json()) as {
+      geoJsonCollection: IGeoJsonFeatureCollectionWithBuildData;
+    };
+
+    return geoJsonCollection;
   },
 };

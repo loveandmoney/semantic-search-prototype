@@ -28,18 +28,18 @@ export interface IStreamInitiator {
 }
 
 export type TBuildRegion =
-  | 'south-east'
-  | 'west'
-  | 'north'
-  | 'geelong'
-  | 'gippsland'
-  | 'out-of-build-region';
+  | 'South East'
+  | 'West'
+  | 'North'
+  | 'Geelong'
+  | 'Gippsland'
+  | 'Out of build region';
 
-export interface ISuburb {
-  name: string;
+export interface ISuburbBuildData {
+  suburb: string;
   postcode: string;
   region: TBuildRegion;
-  feasibilityRequired: boolean;
+  region_feasibility: boolean;
 }
 
 export interface IGeopoint {
@@ -59,7 +59,26 @@ export interface IGeoJsonFeature {
   };
 }
 
+export interface IGeoJsonFeatureWithBuildData {
+  type: 'Feature';
+  properties: {
+    LOCALITY_NAME: string;
+    POSTCODE: string;
+    region: TBuildRegion;
+    region_feasibility: boolean;
+  };
+  geometry: {
+    type: 'Polygon' | 'MultiPolygon';
+    coordinates: number[][][] | number[][][][];
+  };
+}
+
 export interface IGeoJsonFeatureCollection {
   type: 'FeatureCollection';
   features: IGeoJsonFeature[];
+}
+
+export interface IGeoJsonFeatureCollectionWithBuildData {
+  type: 'FeatureCollection';
+  features: IGeoJsonFeatureWithBuildData[];
 }

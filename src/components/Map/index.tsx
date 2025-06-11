@@ -4,47 +4,71 @@ import React, { Dispatch, SetStateAction, useRef } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import mapStyles from './mapStyles';
 import { apiService } from '@/lib/apiService';
+import { ISuburbBuildData, TBuildRegion } from '@/types';
 
 interface IProps {
   scriptHasLoaded: boolean;
-  setSelectedFeature: Dispatch<SetStateAction<string | null>>;
+  setSelectedSuburb: Dispatch<SetStateAction<ISuburbBuildData | null>>;
 }
 
-const Map = ({ scriptHasLoaded, setSelectedFeature }: IProps) => {
+const Map = ({ scriptHasLoaded, setSelectedSuburb }: IProps) => {
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const fetchAndSetGeoJsonData = async () => {
     if (!mapRef.current) return;
 
-    const geoJsonData = await apiService.geoJson();
+    const geoJsonData = await apiService.getGeoJsonWithBuildData();
 
     mapRef.current.data.addGeoJson(geoJsonData);
 
-    mapRef.current.data.setStyle({
-      fillColor: '#FF5722',
-      strokeColor: '#FF5722',
-      strokeWeight: 1,
-      fillOpacity: 0.3,
+    mapRef.current.data.setStyle((feature) => {
+      const region = feature.getProperty('region') as TBuildRegion;
+      const regionFeasibility = feature.getProperty(
+        'region_feasibility'
+      ) as string;
+
+      const colors: Record<TBuildRegion, { fill: string; stroke: string }> = {
+        'South East': { fill: '#FF5722', stroke: '#E64A19' },
+        West: { fill: '#4CAF50', stroke: '#388E3C' },
+        North: { fill: '#2196F3', stroke: '#1976D2' },
+        Geelong: { fill: '#9C27B0', stroke: '#7B1FA2' },
+        Gippsland: { fill: '#FFEB3B', stroke: '#FBC02D' },
+        'Out of build region': { fill: '#BDBDBD', stroke: '#757575' },
+      };
+
+      const color = colors[region] || { fill: '#CCCCCC', stroke: '#999999' };
+
+      return {
+        fillColor: color.fill,
+        strokeColor: color.stroke,
+        strokeWeight: 1,
+        fillOpacity: regionFeasibility ? 0.25 : 0.75,
+      };
     });
 
     mapRef.current.data.addListener('click', (event) => {
-      console.log(event.feature);
-      const name = event.feature.getProperty('LOCALITY_NAME');
-      setSelectedFeature(name);
+      const postcode = event.feature.getProperty('POSTCODE');
+      const suburb = event.feature.getProperty('LOCALITY_NAME');
+      const region = event.feature.getProperty('region');
+      const region_feasibility =
+        event.feature.getProperty('region_feasibility');
+      setSelectedSuburb({ postcode, region, region_feasibility, suburb });
     });
 
     // Set bounds to show all features
     const bounds = new google.maps.LatLngBounds();
-    geoJsonData.features.forEach((feature) => {
-      const coords =
-        feature.geometry.type === 'Polygon'
-          ? feature.geometry.coordinates[0]
-          : feature.geometry.coordinates[0][0];
+    geoJsonData.features
+      .filter((feature) => feature.properties.region !== 'Out of build region')
+      .forEach((feature) => {
+        const coords =
+          feature.geometry.type === 'Polygon'
+            ? feature.geometry.coordinates[0]
+            : feature.geometry.coordinates[0][0];
 
-      (coords as [number, number][]).forEach(([lng, lat]) => {
-        bounds.extend(new google.maps.LatLng(lat, lng));
+        (coords as [number, number][]).forEach(([lng, lat]) => {
+          bounds.extend(new google.maps.LatLng(lat, lng));
+        });
       });
-    });
 
     mapRef.current.fitBounds(bounds);
   };

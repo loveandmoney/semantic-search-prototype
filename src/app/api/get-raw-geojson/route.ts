@@ -10,7 +10,7 @@ export const GET = async () => {
   try {
     const filePath = path.join(
       process.cwd(),
-      'src/app/api/geojson/merged_regions.geojson'
+      'src/app/api/get-raw-geojson/merged_regions.geojson'
     );
     const fileData = await fs.readFile(filePath, 'utf-8');
     const json = JSON.parse(fileData);
