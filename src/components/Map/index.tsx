@@ -56,6 +56,16 @@ const Map = ({ setSelectedSuburb }: IProps) => {
       const region_feasibility =
         event.feature.getProperty('region_feasibility');
       setSelectedSuburb({ postcode, region, region_feasibility, suburb });
+
+      // Zoom into clicked feature
+      const geometry = event.feature.getGeometry();
+      const bounds = new google.maps.LatLngBounds();
+
+      geometry?.forEachLatLng((latLng) => {
+        bounds.extend(latLng);
+      });
+
+      mapRef.current?.fitBounds(bounds);
     });
 
     // Set bounds to show all features
