@@ -1,6 +1,6 @@
 'use client';
 
-import Map from '@/components/Map';
+import { Map } from '@/components/Map';
 import { ISuburbBuildData } from '@/types';
 import clsx from 'clsx';
 import { useState } from 'react';
