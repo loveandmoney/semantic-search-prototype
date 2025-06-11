@@ -1,18 +1,21 @@
 'use client';
 
 import React, { Dispatch, SetStateAction, useRef } from 'react';
-import { GoogleMap } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import mapStyles from './mapStyles';
 import { apiService } from '@/lib/apiService';
 import { ISuburbBuildData, TBuildRegion } from '@/types';
 
 interface IProps {
-  scriptHasLoaded: boolean;
   setSelectedSuburb: Dispatch<SetStateAction<ISuburbBuildData | null>>;
 }
 
-const Map = ({ scriptHasLoaded, setSelectedSuburb }: IProps) => {
+const Map = ({ setSelectedSuburb }: IProps) => {
   const mapRef = useRef<google.maps.Map | null>(null);
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    libraries: ['places', 'geometry'],
+  });
 
   const fetchAndSetGeoJsonData = async () => {
     if (!mapRef.current) return;
@@ -83,13 +86,13 @@ const Map = ({ scriptHasLoaded, setSelectedSuburb }: IProps) => {
     fetchAndSetGeoJsonData();
   };
 
-  if (!scriptHasLoaded) {
+  if (!isLoaded) {
     return null;
   }
 
   return (
     <div className="absolute top-0 left-0 w-full h-full">
-      {scriptHasLoaded && (
+      {isLoaded && (
         <GoogleMap
           mapContainerStyle={{ width: '100%', height: '100%' }}
           onLoad={handleLoad}
