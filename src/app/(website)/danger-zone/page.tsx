@@ -18,6 +18,9 @@ export default function DangerZonePage() {
         <Button onClick={() => apiService.typesenseAddDocuments()}>
           Add Documents
         </Button>
+        <Button onClick={() => apiService.generateEnrichedGeoJson()}>
+          Generate GeoJson
+        </Button>
       </div>
     </main>
   );

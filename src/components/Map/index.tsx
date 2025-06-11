@@ -20,7 +20,7 @@ const Map = ({ setSelectedSuburb }: IProps) => {
   const fetchAndSetGeoJsonData = async () => {
     if (!mapRef.current) return;
 
-    const geoJsonData = await apiService.getGeoJsonWithBuildData();
+    const geoJsonData = await apiService.getEnrichedGeojson();
 
     mapRef.current.data.addGeoJson(geoJsonData);
 

@@ -1,3 +1,7 @@
+const landColor = '#adadad';
+const waterColor = '#96c0ce';
+const bordersColor = '#1a3541';
+
 const mapStyles = [
   {
     featureType: 'all',
@@ -12,7 +16,7 @@ const mapStyles = [
   {
     featureType: 'administrative',
     elementType: 'geometry',
-    stylers: [{ weight: 0.6 }, { color: '#1a3541' }],
+    stylers: [{ weight: 0.6 }, { color: bordersColor }],
   },
   {
     featureType: 'administrative.country',
@@ -22,22 +26,22 @@ const mapStyles = [
   {
     featureType: 'landscape',
     elementType: 'geometry',
-    stylers: [{ color: '#8e9a36' }],
+    stylers: [{ color: landColor }],
   },
   {
     featureType: 'poi',
     elementType: 'geometry',
-    stylers: [{ color: '#8e9a36' }],
+    stylers: [{ color: landColor }],
   },
   {
     featureType: 'poi.park',
     elementType: 'geometry',
-    stylers: [{ color: '#8e9a36' }],
+    stylers: [{ color: landColor }],
   },
   {
     featureType: 'road',
     elementType: 'geometry',
-    stylers: [{ color: '#8e9a36' }, { lightness: '25' }],
+    stylers: [{ color: landColor }, { lightness: '25' }],
   },
   {
     featureType: 'road.local',
@@ -47,12 +51,12 @@ const mapStyles = [
   {
     featureType: 'transit',
     elementType: 'geometry',
-    stylers: [{ color: '#8e9a36' }, { lightness: '15' }],
+    stylers: [{ color: landColor }, { lightness: '15' }],
   },
   {
     featureType: 'water',
     elementType: 'geometry',
-    stylers: [{ color: '#96c0ce' }],
+    stylers: [{ color: waterColor }],
   },
 ];
 

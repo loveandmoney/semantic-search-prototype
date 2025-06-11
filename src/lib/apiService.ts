@@ -25,7 +25,8 @@ const endpoint = {
   typesenseVectorSearchCollection: `${apiEndpoint}/typesense-vector-search-collection`,
   getRawGeoJson: `${apiEndpoint}/get-raw-geojson`,
   getSuburbBuildData: `${apiEndpoint}/get-suburb-build-data`,
-  getGeoJsonWithBuildData: `${apiEndpoint}/get-geojson-with-build-data`,
+  getEnrichedGeoJson: `${apiEndpoint}/get-enriched-geojson`,
+  generateEnrichedGeoJson: `${apiEndpoint}/generate-enriched-geojson`,
 };
 
 export const apiService = {
@@ -150,31 +151,8 @@ export const apiService = {
 
     return response.json();
   },
-  async getSuburbBuildData({
-    postcode,
-    suburb,
-  }: {
-    suburb: string;
-    postcode: string;
-  }): Promise<ISuburbBuildData> {
+  async getSuburbBuildData(): Promise<ISuburbBuildData[]> {
     const response = await fetch(endpoint.getSuburbBuildData, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postcode, suburb }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate OpenAI embedding');
-    }
-
-    const { suburbBuildData } = (await response.json()) as {
-      suburbBuildData: ISuburbBuildData;
-    };
-
-    return suburbBuildData;
-  },
-  async getGeoJsonWithBuildData(): Promise<IGeoJsonFeatureCollectionWithBuildData> {
-    const response = await fetch(endpoint.getGeoJsonWithBuildData, {
       method: 'GET',
     });
 
@@ -182,10 +160,31 @@ export const apiService = {
       throw new Error('Failed to get geojson with build data');
     }
 
-    const { geoJsonCollection } = (await response.json()) as {
-      geoJsonCollection: IGeoJsonFeatureCollectionWithBuildData;
-    };
+    const locations = (await response.json()) as ISuburbBuildData[];
 
-    return geoJsonCollection;
+    return locations;
+  },
+  async generateEnrichedGeoJson(): Promise<void> {
+    const response = await fetch(endpoint.generateEnrichedGeoJson, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate geojson');
+    }
+  },
+  async getEnrichedGeojson(): Promise<IGeoJsonFeatureCollectionWithBuildData> {
+    const response = await fetch(endpoint.getEnrichedGeoJson, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate geojson');
+    }
+
+    const enrichedGeoJson =
+      (await response.json()) as IGeoJsonFeatureCollectionWithBuildData;
+
+    return enrichedGeoJson;
   },
 };
